@@ -124,6 +124,10 @@ const DEVICE_MAP = new Map(DEVICES.map((d) => [d.deviceId, d]));
 // ────────────────────────────────────────────────
 // 3) 유틸
 // ────────────────────────────────────────────────
+function sha256Hex(str) {
+  return crypto.createHash("sha256").update(str).digest("hex");
+}
+
 function hmacBase64(secret, data) {
   return crypto.createHmac("sha256", secret).update(data).digest("base64");
 }
@@ -205,9 +209,12 @@ app.post("/v1/ingest", (req, res) => {
         .json({ ok: false, error: "timestamp skew too large" });
     }
 
-    // ── 2) 본문 파싱/서명 검증
+    // ── 2) 서명 검증
     const rawBody = JSON.stringify(req.body ?? {});
-    const expectedSign = hmacBase64(device.secret, rawBody + tsHeader);
+    const bodyHash = sha256Hex(rawBody);
+    const signInput = `${tsHeader}.${bodyHash}`;
+    const expectedSign = hmacBase64(device.secret, signInput);
+
     if (
       !crypto.timingSafeEqual(
         Buffer.from(expectedSign),
