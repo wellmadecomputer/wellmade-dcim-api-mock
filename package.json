@@ -5,6 +5,9 @@
   "repository": "https://github.com/wellmadecomputer/wellmade-ems-api-mock.git",
   "author": "WisdomIT <wisdomitx@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "body-parser": "^2.2.0",
     "express": "^5.1.0"
