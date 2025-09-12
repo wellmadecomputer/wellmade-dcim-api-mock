@@ -31,7 +31,7 @@ const ts = Date.now().toString();
 const sig = sign(ts, raw);
 
 const req = http.request(
-  new URL("/v1/ingest", BASE),
+  new URL("/api/v1/ingest", BASE),
   {
     method: "POST",
     headers: {

@@ -34,7 +34,7 @@
 ### 공통 변수
 
 ```bash
-ENDPOINT="http://localhost:3000/v1/ingest"
+ENDPOINT="http://localhost:3000/api/v1/ingest"
 DEVICE_ID="dev-flow-001"
 SECRET="FLw_7nQm2Zt9bH6cJ4Vr"
 
@@ -84,7 +84,7 @@ curl -sS "$ENDPOINT" \
 ### 공통 변수
 
 ```powershell
-$Endpoint = "http://localhost:3000/v1/ingest"
+$Endpoint = "http://localhost:3000/api/v1/ingest"
 $DeviceId = "dev-flow-001"
 $Secret   = "FLw_7nQm2Zt9bH6cJ4Vr"
 
@@ -149,7 +149,7 @@ TS=$(($(date +%s)*1000))
 BODY_C='{"schemaVersion":1,"hardwareSN":"MB-SN-COOLANT-001","observedAt":"2025-09-11T05:10:00.000Z","data":{"water.temp1.c":24.7,"water.temp2.c":25.0,"water.temp3.c":25.3,"room.temp.c":22.4,"room.humi.pct":41.9,"tank.level.ok":true}}'
 BODY_HASH=$(printf '%s' "$BODY_C" | openssl dgst -sha256 -hex | sed 's/^.* //'); SIGN_INPUT="${TS}.${BODY_HASH}"
 SIGN=$(printf '%s' "$SIGN_INPUT" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
-curl -sS http://localhost:3000/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
+curl -sS http://localhost:3000/api/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
 ```
 
 ### 유량센서
@@ -161,7 +161,7 @@ TS=$(($(date +%s)*1000))
 BODY_C='{"schemaVersion":1,"hardwareSN":"MB-SN-FLOW-001","observedAt":"2025-09-11T05:10:00.000Z","data":{"flow.rate.lpm":32.4}}'
 BODY_HASH=$(printf '%s' "$BODY_C" | openssl dgst -sha256 -hex | sed 's/^.* //'); SIGN_INPUT="${TS}.${BODY_HASH}"
 SIGN=$(printf '%s' "$SIGN_INPUT" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
-curl -sS http://localhost:3000/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
+curl -sS http://localhost:3000/api/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
 ```
 
 ### 전압센서 보드 (예: dev-voltage-002)
@@ -173,7 +173,7 @@ TS=$(($(date +%s)*1000))
 BODY_C='{"schemaVersion":1,"hardwareSN":"MB-SN-VOLT-002","observedAt":"2025-09-11T05:10:00.000Z","data":{"psu.v1.v":11.98,"psu.v2.v":12.01}}'
 BODY_HASH=$(printf '%s' "$BODY_C" | openssl dgst -sha256 -hex | sed 's/^.* //'); SIGN_INPUT="${TS}.${BODY_HASH}"
 SIGN=$(printf '%s' "$SIGN_INPUT" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
-curl -sS http://localhost:3000/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
+curl -sS http://localhost:3000/api/v1/ingest -H "Content-Type: application/json" -H "X-Device-ID: $DEVICE_ID" -H "X-Timestamp: $TS" -H "X-Device-Sign: $SIGN" -d "$BODY_C"
 ```
 
 ---

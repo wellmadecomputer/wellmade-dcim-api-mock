@@ -153,12 +153,12 @@ app.use(
 );
 
 // 상태 확인
-app.get("/healthz", (_, res) =>
+app.get("/api/healthz", (_, res) =>
   res.json({ ok: true, time: new Date().toISOString() })
 );
 
 // (선택) 장치 허용 키 목록 조회 — 벤더 개발 편의용
-app.get("/manifest/:deviceId", (req, res) => {
+app.get("/api/manifest/:deviceId", (req, res) => {
   const d = DEVICE_MAP.get(req.params.deviceId);
   if (!d) return res.status(404).json({ ok: false, error: "unknown deviceId" });
   const model = DEVICE_MODELS[d.model];
@@ -187,7 +187,7 @@ app.get("/manifest/:deviceId", (req, res) => {
  *    "data": { "water.temp1.c": 24.7, ... }
  *  }
  */
-app.post("/v1/ingest", (req, res) => {
+app.post("/api/v1/ingest", (req, res) => {
   try {
     // ── 1) 인증 헤더
     const deviceId = req.header("X-Device-ID");
