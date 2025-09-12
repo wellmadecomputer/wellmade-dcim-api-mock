@@ -39,43 +39,40 @@ DEVICE_ID="dev-flow-001"
 SECRET="FLw_7nQm2Zt9bH6cJ4Vr"
 
 # epoch ms (macOS 포함 안전)
-TS=$(($(date +%s)*1000))
+TS=$(($(date -u +%s)*1000))                    # epoch ms (macOS/GNU 공통)
+OBS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")           # ISO8601 (UTC)
 ```
 
 ### 요청 바디 (압축 JSON으로 통일)
 
 ```bash
-BODY='{
-  "schemaVersion": 1,
-  "hardwareSN": "MB-SN-FLOW-001",
-  "observedAt": "2025-09-11T05:10:00.000Z",
-  "data": { "flow.rate.lpm": 32.4 }
-}'
+# 1) 현재 시각(테스트 권장) — observedAt ≈ now, TS ≈ now
+TS=$(($(date -u +%s)*1000))
+OBS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-BODY_C=$(printf '%s' "$BODY" | jq -c .)
+# 2) 바디를 '압축 JSON'으로 생성 (jq 필요)
+BODY_C=$(jq -cn --arg obs "$OBS" \
+  '{schemaVersion:1, hardwareSN:"MB-SN-FLOW-001", observedAt:$obs, data:{"flow.rate.lpm":32.4}}')
 ```
 
 ### 서명 생성
 
 ```bash
-BODY_HASH=$(printf '%s' "$BODY_C" | openssl dgst -sha256 -hex | sed 's/^.* //')
+BODY_HASH=$(printf %s "$BODY_C" | openssl dgst -sha256 -hex | awk '{print $2}')
 SIGN_INPUT="${TS}.${BODY_HASH}"
-SIGN=$(printf '%s' "$SIGN_INPUT" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
+SIGN=$(printf %s "$SIGN_INPUT" | openssl dgst -sha256 -hmac "$SECRET" -binary | base64)
 ```
 
 ### 전송
 
 ```bash
-curl -sS "$ENDPOINT" \
+curl -sS --fail-with-body "$ENDPOINT" \
   -H "Content-Type: application/json" \
   -H "X-Device-ID: $DEVICE_ID" \
   -H "X-Timestamp: $TS" \
   -H "X-Device-Sign: $SIGN" \
-  -d "$BODY_C"
+  --data-raw "$BODY_C"
 ```
-
-> macOS에서는 `date +%s%3N`이 동작하지 않습니다.  
-> 반드시 `TS=$(($(date +%s)*1000))` 방식 사용하세요.
 
 ---
 
@@ -87,40 +84,37 @@ curl -sS "$ENDPOINT" \
 $Endpoint = "http://localhost:3000/api/v1/ingest"
 $DeviceId = "dev-flow-001"
 $Secret   = "FLw_7nQm2Zt9bH6cJ4Vr"
-
-# epoch ms
-$TS = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
 ```
 
 ### 요청 바디 → 압축 JSON
 
 ```powershell
+$TS  = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+$OBS = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+
 $BodyObj = @{
   schemaVersion = 1
   hardwareSN    = "MB-SN-FLOW-001"
-  observedAt    = "2025-09-11T05:10:00.000Z"
+  observedAt    = $OBS
   data          = @{ "flow.rate.lpm" = 32.4 }
 }
-
 $BodyC = ($BodyObj | ConvertTo-Json -Compress)
 ```
 
 ### 해시 및 서명 생성
 
 ```powershell
-# SHA256(body)
-$sha256   = [System.Security.Cryptography.SHA256]::Create()
-$bytes    = [System.Text.Encoding]::UTF8.GetBytes($BodyC)
-$hash     = $sha256.ComputeHash($bytes)
-$bodyHash = ($hash | ForEach-Object ToString x2) -join ""
+# sha256(BODY_C)
+$BodyHash = [System.BitConverter]::ToString(
+  [System.Security.Cryptography.SHA256]::Create().ComputeHash(
+    [System.Text.Encoding]::UTF8.GetBytes($BodyC)
+  )
+).Replace("-", "").ToLowerInvariant()
 
-# signInput = "<timestamp>.<bodyHash>"
-$signInput = "$TS.$bodyHash"
-
-# HMAC-SHA256(base64)
-$hmac     = [System.Security.Cryptography.HMACSHA256]::new([Text.Encoding]::UTF8.GetBytes($Secret))
-$signRaw  = $hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($signInput))
-$sign     = [Convert]::ToBase64String($signRaw)
+$SignInput = "$TS.$BodyHash"
+$hmac = New-Object System.Security.Cryptography.HMACSHA256 ([Text.Encoding]::UTF8.GetBytes($Secret))
+$Sign = [Convert]::ToBase64String($hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($SignInput)))
+$hmac.Dispose()
 ```
 
 ### 전송
@@ -129,8 +123,8 @@ $sign     = [Convert]::ToBase64String($signRaw)
 $Headers = @{
   "Content-Type"  = "application/json"
   "X-Device-ID"   = $DeviceId
-  "X-Timestamp"   = $TS
-  "X-Device-Sign" = $sign
+  "X-Timestamp"   = "$TS"
+  "X-Device-Sign" = $Sign
 }
 
 Invoke-RestMethod -Uri $Endpoint -Method Post -Headers $Headers -Body $BodyC
