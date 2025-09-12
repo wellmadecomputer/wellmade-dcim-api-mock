@@ -3,7 +3,6 @@
 // SN(하드웨어 S/N) 1회 바인딩
 
 const express = require("express");
-const bodyParser = require("body-parser");
 const crypto = require("crypto");
 
 // ────────────────────────────────────────────────
@@ -144,7 +143,14 @@ function nowMs() {
 // 4) 서버
 // ────────────────────────────────────────────────
 const app = express();
-app.use(bodyParser.json({ limit: MAX_BODY_BYTES }));
+app.use(
+  express.json({
+    limit: MAX_BODY_BYTES,
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 
 // 상태 확인
 app.get("/healthz", (_, res) =>
@@ -210,8 +216,8 @@ app.post("/v1/ingest", (req, res) => {
     }
 
     // ── 2) 서명 검증
-    const rawBody = JSON.stringify(req.body ?? {});
-    const bodyHash = sha256Hex(rawBody);
+    const rawBodyStr = (req.rawBody || Buffer.from("{}")).toString("utf8");
+    const bodyHash = sha256Hex(rawBodyStr);
     const signInput = `${tsHeader}.${bodyHash}`;
     const expectedSign = hmacBase64(device.secret, signInput);
 
