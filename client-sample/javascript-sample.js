@@ -35,8 +35,8 @@ const SCHEMAS = {
     { key: "flow.rate.lpm", type: "number", min: 0, max: 100, scale: 1 },
   ],
   "voltage-board": [
-    { key: "psw.v1.v", type: "number", min: 0, max: 24, scale: 2 },
-    { key: "psw.v2.v", type: "number", min: 0, max: 24, scale: 2 },
+    { key: "psu.v1.v", type: "number", min: 0, max: 24, scale: 2 },
+    { key: "psu.v2.v", type: "number", min: 0, max: 24, scale: 2 },
   ],
 };
 
