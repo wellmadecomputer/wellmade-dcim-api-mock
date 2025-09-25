@@ -23,7 +23,7 @@ const SCHEMA_VERSION = 1;
  */
 // ────────────────────────────────────────────────
 const DEVICE_MODELS = {
-  // 1) 랙 냉매센서 보드 (온도센서 3개 + 온습도센서 1세트 + 수위센서 1개)
+  // 1-1) 랙 냉매센서 보드 (온도센서 3개 + 온습도센서 1세트 + 수위센서 1개)
   RACK_COOLANT_V1: {
     name: "rack-coolant-board",
     version: "v1",
@@ -32,6 +32,13 @@ const DEVICE_MODELS = {
       { key: "water.temp1.c", type: "number", required: true },
       { key: "water.temp2.c", type: "number", required: true },
       { key: "water.temp3.c", type: "number", required: true },
+    ],
+  },
+  // 1-2) 랙 실내센서 보드 (온도센서 3개 + 온습도센서 1세트 + 수위센서 1개)
+  RACK_ROOM_V1: {
+    name: "rack-room-board",
+    version: "v1",
+    keys: [
       // 온습도센서 *1 (온도°C + 습도%)
       { key: "room.temp.c", type: "number", required: true },
       { key: "room.humi.pct", type: "number", required: true },
@@ -75,6 +82,14 @@ const DEVICES = [
     deviceId: "dev-rack-coolant-001",
     secret: "RKx_2Pq5M4F9gE3yP1Jv", // 예시 키 (벤더에 전달)
     model: "RACK_COOLANT_V1",
+    enabled: true,
+    boundHardwareSN: null,
+  },
+  // 랙 실내센서 1대
+  {
+    deviceId: "dev-rack-room-001",
+    secret: "RRa_3Jlpm2iNlh932Lhv",
+    model: "RACK_ROOM_V1",
     enabled: true,
     boundHardwareSN: null,
   },

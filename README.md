@@ -2,7 +2,7 @@
 
 단일 프레임 전송 / 타입 없음 / HMAC 인증 / SN 1회 바인딩
 
-- **엔드포인트:** `POST /v1/ingest`
+- **엔드포인트:** `POST /api/v1/ingest`
 - **인증 헤더**
   - `X-Device-ID`: 발급된 장치 ID
   - `X-Timestamp`: epoch 밀리초(13자리 정수)
@@ -24,8 +24,8 @@
   - **유량센서**: `deviceId=dev-flow-001`, `secret=FLw_7nQm2Zt9bH6cJ4Vr`
 
 > 서버가 실행 중이어야 합니다: `http://localhost:3000`  
-> 상태 확인: `GET /healthz`  
-> 모델/허용키 확인: `GET /manifest/<deviceId>`
+> 상태 확인: `GET /api/healthz`  
+> 모델/허용키 확인: `GET /api/manifest/<deviceId>`
 
 ---
 
@@ -185,7 +185,7 @@ curl -sS http://localhost:3000/api/v1/ingest -H "Content-Type: application/json"
 
 - **key not allowed for this device model**
 
-  - `/manifest/<deviceId>`로 허용 키 확인
+  - `/api/manifest/<deviceId>`로 허용 키 확인
 
 - **missing required key**
 

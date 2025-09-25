@@ -23,13 +23,15 @@ const http = require("http");
 // ─────────────────────────────────────────────────────────────
 const SCHEMAS = {
   "rack-coolant-board": [
-    { key: "water.temp1.c", type: "number", min: -10, max: 100, scale: 1 },
-    { key: "water.temp2.c", type: "number", min: -10, max: 100, scale: 1 },
-    { key: "water.temp3.c", type: "number", min: -10, max: 100, scale: 1 },
-    { key: "room.temp.c", type: "number", min: -10, max: 80, scale: 1 },
-    { key: "room.humi.pct", type: "number", min: 0, max: 100, scale: 1 },
+    { key: "water.temp1.c", type: "number", min: 18, max: 32, scale: 1 },
+    { key: "water.temp2.c", type: "number", min: 18, max: 32, scale: 1 },
+    { key: "water.temp3.c", type: "number", min: 18, max: 32, scale: 1 },
+  ],
+  "rack-room-board": [
+    { key: "room.temp.c", type: "number", min: 18, max: 27, scale: 1 },
+    { key: "room.humi.pct", type: "number", min: 20, max: 60, scale: 1 },
     // 탱크 레벨은 정상(true)이 더 자주 나오도록 90% true, 10% false
-    { key: "tank.level.ok", type: "boolean", trueProb: 0.9 },
+    { key: "tank.level.ok", type: "boolean", trueProb: 1 },
   ],
   "flow-board": [
     { key: "flow.rate.lpm", type: "number", min: 0, max: 100, scale: 1 },
